@@ -3,6 +3,8 @@
 #include "Actor.hpp"
 #include <hqr.h>
 
+namespace aitd {
+
 //TODO: send this to parseUtils ?
 Eigen::Matrix3f getRotationMatrixFromRotIndices(uint16 rotx, uint16 roty, uint16 rotz);
 
@@ -15,3 +17,4 @@ public:
 	static Fitd::hqrEntryStruct *list_body;
 	static Fitd::hqrEntryStruct *list_anim;	
 };
+}

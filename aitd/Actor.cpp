@@ -1,6 +1,8 @@
 #include "Actor.hpp"
 #include "utils/Color.hpp"
 
+namespace aitd {
+
 //copies skeleton structure to avoid 
 Skeleton::Ptr Skeleton::deepCopy() {
 	Skeleton::Ptr copy = Skeleton::Ptr(new Skeleton());
@@ -160,4 +162,5 @@ void Actor::draw(float delta) {
 	// }
 	
 //	mesh->submit();
+}
 }

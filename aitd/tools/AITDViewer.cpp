@@ -5,6 +5,7 @@
 #include <graphics/RenderSystem.hpp>
 #include <main.h>
 
+namespace aitd {
 void display_vertices_of_bone(int bone_id, Actor::Ptr actor_data, EntityManager::Ptr entity_manager) {
 
 	Bone::Ptr bone = actor_data->getSkeleton()->bone_map[bone_id];
@@ -88,4 +89,5 @@ void AITDViewer::run_frame(float dt) {
 
 	// handy to rotate objects around
 	GraphicsEngine::camera().update(dt);
+}
 }

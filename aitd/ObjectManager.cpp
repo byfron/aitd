@@ -3,6 +3,7 @@
 #include <file_access.h>
 #include <iostream> //TODO: Change all those outputs with a proper logger
 
+namespace aitd {
 std::map<int, ObjectData> ObjectManager::object_map;
 
 void ObjectData::readFromStream(Common::SeekableReadStream *stream) {
@@ -49,4 +50,5 @@ void ObjectManager::loadObjects() {
 		object_map[i].readFromStream(data_loader.stream);
 	}
 	delete data_loader.stream;
+}
 }

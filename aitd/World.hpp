@@ -5,6 +5,8 @@
 #include <entities/Entity.hpp>
 #include <map>
 
+namespace aitd {
+
 class World {
 public:
 	typedef std::shared_ptr<World> Ptr;
@@ -35,3 +37,4 @@ protected:
 
 };
 
+}

@@ -2,7 +2,7 @@
 #include "Components.hpp"
 #include <utils/CollisionUtils.hpp>
 #include "AITDEngine.hpp"
-
+namespace aitd {
 using namespace Components;
 
 void ScriptingSystem::update(EntityManager & em, EventManager &evm, float delta) {
@@ -164,5 +164,6 @@ void UpdateSystem::update(EntityManager & em, EventManager &evm, float delta ) {
 				}
 				
 			}
-		});
+		});									  
+}
 }

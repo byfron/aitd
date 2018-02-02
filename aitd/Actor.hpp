@@ -3,6 +3,8 @@
 #include "utils/Geometry.hpp"
 #include <map>
 
+namespace aitd {
+
 class Primitive {
 public:
 	virtual ~Primitive() = default;
@@ -123,3 +125,4 @@ public:
 	bool refreshVertexBuffer = false;
 	
 };
+}

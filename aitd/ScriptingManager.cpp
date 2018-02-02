@@ -4,6 +4,7 @@
 #include "Components.hpp"
 #include <hqr.h>
 
+namespace aitd {
 using namespace Components;
 
 CommandId CommandMacroTable[] = {
@@ -1151,4 +1152,5 @@ void ScriptingManager::runScript(int script_id, Entity::Id entity_id, const Enti
 
 //		script.command_vector.push_back();
 	}
+}
 }

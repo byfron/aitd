@@ -11,6 +11,8 @@
 #include <file_access.h>
 #include "Message.hpp"
 
+namespace aitd {
+
 Entity::Id AITDEngine::player_entity_id;
 std::map<uint32_t, int> AITDEngine::CameraEntityToIndex;
 std::map<int, int16> AITDEngine::globals;
@@ -90,4 +92,5 @@ void AITDEngine::loadGameData() {
 
 void AITDEngine::requestQuit() {
 	running = false;
+}
 }

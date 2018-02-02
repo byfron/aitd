@@ -2,6 +2,7 @@
 #include <ActorLoader.hpp>
 #include <entities/Entity.hpp>
 
+namespace aitd {
 class AITDViewer {
 public:
 
@@ -13,3 +14,4 @@ protected:
 	
 	EntityManager::Ptr entity_manager;
 };
+}

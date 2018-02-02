@@ -49,8 +49,6 @@ SET(BGFX_LIBRARIES
 SET(SHADER_COMPILER ${ROOT_DIR}/bgfx/.build/linux64_gcc/bin/shadercRelease)
 
 add_library(AITDCore
-  Shader.hpp
-  Shader.cpp  
   InputManager.hpp
   InputManager.cpp
   ResourceManager.hpp

@@ -1,9 +1,9 @@
 #include "AITDEngine.hpp"
 #include <graphics/GraphicsEngine.hpp>
 
-class AITD : public GraphicsEngine {
+class AITD : public aitd::GraphicsEngine {
 public:
-	AITD(const char* name, const char* desc) : GraphicsEngine(name, desc) {
+	AITD(const char* name, const char* desc) : aitd::GraphicsEngine(name, desc) {
 		//auto console = spd::stdout_logger_mt("Client");
 	}
 
@@ -17,7 +17,7 @@ public:
 
 private:
 
-	AITDEngine engine;
+	aitd::AITDEngine engine;
 	
 };
 

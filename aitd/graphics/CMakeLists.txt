@@ -1,4 +1,8 @@
 add_library(GraphicsCore
+  Shader.hpp
+  Shader.cpp
+  Mesh.hpp
+  Mesh.cpp
   Camera.hpp
   Camera.cpp
   GraphicsEngine.hpp

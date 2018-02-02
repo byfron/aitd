@@ -9,6 +9,8 @@
 #include <bx/bx.h>
 #include <bx/macros.h>
 
+namespace aitd {
+
 class Camera;
 
 void screenSpaceQuad(float _textureWidth, float _textureHeight, bool _originBottomLeft,
@@ -56,9 +58,9 @@ struct PosColorVertex
 
 
 // Views
-enum RenderPasses {
-	
+enum RenderPasses {	
 	RENDER_PASS_BACKGROUND = 0,
+	RENDER_PASS_BGMASK,
 	RENDER_PASS_GEOMETRY
 };
 
@@ -134,5 +136,5 @@ protected:
 
 };
 
-
+}
 #endif

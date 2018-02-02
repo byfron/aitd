@@ -9,6 +9,8 @@
 
 #define FLT_MIN std::numeric_limits<float>::min()
 
+namespace aitd {
+
 //uint8_t Camera::m_keys;
 
 Camera::Camera()
@@ -308,4 +310,5 @@ Eigen::MatrixXf Camera::getTowardsCameraRotation(Vec3f pos) {
 	 	Eigen::AngleAxisf(1.2 + M_PI/2, Eigen::Vector3f(0.0, -1.0, 0.0)));
 
 	return (rot * rot_up).matrix();
+}
 }

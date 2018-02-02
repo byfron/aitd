@@ -6,6 +6,8 @@
 #include <common/debugdraw/debugdraw.h>
 #include <vector>
 
+namespace aitd {
+
 class DebugManager {
 
 public:
@@ -123,3 +125,4 @@ protected:
 
 };
 
+}

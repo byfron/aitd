@@ -6,6 +6,7 @@
 //TODO: remove OpenCV when done debugging
 #include <opencv2/opencv.hpp>
 
+namespace aitd {
 typedef Eigen::Matrix<int,2,1> Vector2i;
 
 CameraZoneEntry::CameraZoneEntry(const char* data) {
@@ -108,19 +109,20 @@ void CameraBackgroundLayer::load(const char* data) {
 		// When rendering each actor if it's in a zone affected, build a stencil buffer
 		// and apply it 
 
-
+		Geometry::Polygon<Vec2i> overlay_zone;
 		const char* param_data = curr_data + 4;
 		for (int j = 0; j < num_params; j++) {
 			int zoneX1 = *(int16 *)(param_data);
 			int zoneZ1 = *(int16 *)(param_data + 2);
 			int zoneX2 = *(int16 *)(param_data + 4);
 			int zoneZ2 = *(int16 *)(param_data + 6);
+			overlay_zone.points.push_back(Vec2i(zoneX1, zoneZ1));
+			overlay_zone.points.push_back(Vec2i(zoneX2, zoneZ2));
 			param_data += 0x8;
-		}		
+		}
+		overlay_zones.push_back(overlay_zone);
 
 		int num_overlays = *(int16 *)src;
-
-		std::cout << "num overlays: " << num_overlays << std::endl;
 		
 		src += 2;
 
@@ -295,27 +297,28 @@ void RoomCamera::loadBackgroundImage(const char* data) {
 			background_image[(i*200 + j)*3 + 1] = c.g;
 			background_image[(i*200 + j)*3 + 2] = c.b;
 
-			image.at<cv::Vec3b>(i*200 + j) = cv::Vec3b(c.b, c.g, c.r);
+			//image.at<cv::Vec3b>(i*200 + j) = cv::Vec3b(c.b, c.g, c.r);
 		}
 	}
 
-	int r = 3;
-	for (auto layer : bglayer_vector) {
-//		for (auto over : layer->overlays)
-		{
-			auto over = layer->overlays[6];
-			for (auto p : over.points) {
-				int x = p(0);
-				int y = p(1);
-				cv::circle(image, cv::Point2d(x, y), r, cv::Scalar(255, 0, 0));
-			}
-			break;
-		}
-	}
+// 	int r = 3;
+// 	for (auto layer : bglayer_vector) {
+// //		for (auto over : layer->overlays)
+// 		{
+// 			auto over = layer->overlays[6];
+// 			for (auto p : over.points) {
+// 				int x = p(0);
+// 				int y = p(1);
+// 				cv::circle(image, cv::Point2d(x, y), r, cv::Scalar(255, 0, 0));
+// 			}
+// 			break;
+// 		}
+// 	}
 
-	cv::resize(image, image, cv::Size(320*4, 200*4));
-	cv::imshow("im" , image);
-	cv::waitKey(0);
+// 	cv::resize(image, image, cv::Size(320*4, 200*4));
+// 	cv::imshow("im" , image);
+// 	cv::waitKey(0);
 
 
+}
 }

@@ -6,6 +6,7 @@
 #include <common/scummsys.h>
 #include <vector>
 
+namespace aitd {
 class BgImage {
 
 	
@@ -41,6 +42,7 @@ public:
 	void load(const char*);
 	void createOverlay(const int16* src, int size);
 	std::vector<Geometry::Polygon<Vec2i> > overlays;
+	std::vector<Geometry::Polygon<Vec2i> > overlay_zones;
 };
 
 class RoomCamera {
@@ -70,3 +72,4 @@ public:
 	
 	unsigned char* background_image;
 };
+}

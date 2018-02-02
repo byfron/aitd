@@ -1,11 +1,14 @@
 #pragma once
 
 #include "GraphicsEngine.hpp"
+#include "Mesh.hpp"
 #include <World.hpp>
 #include <Actor.hpp>
 #include <entities/Entity.hpp>
 #include <entities/System.hpp>
 #include <utils/Geometry.hpp>
+
+namespace aitd {
 
 class CameraComponent {
 public:
@@ -28,6 +31,28 @@ public:
 	float proj[16];
 	Camera m_camera;
 };
+
+// class BgMaskComponent {
+// public:
+
+// 	BgMaskComponent() {
+
+// 	}
+	
+// 	void render(float delta) {
+// 		bgfx::setTexture(0, texture_uniform, texture);
+// 		bgfx::setState(0
+// 					   | BGFX_STATE_RGB_WRITE
+// 					   | BGFX_STATE_ALPHA_WRITE);
+// 		screenSpaceQuad((float)GraphicsEngine::WIDTH, (float)GraphicsEngine::HEIGHT, false, 1.0f, 1.0f);
+// 		bgfx::submit(RENDER_PASS_BGMASK, program->getHandle());
+// 	}
+
+// protected:
+
+// 	//vertex buffer
+	
+// }
 
 class BgImageComponent {
 public:
@@ -89,6 +114,11 @@ public:
 
 	//TODO: put this in the system to have components contain no logic at all
 	void render(float delta, const float* mtx) {
+
+		//construct stencil mask
+		mask->render();		
+
+		//render mesh
 		bgfx::setTransform(mtx);
 		mesh->submit();
 	}
@@ -100,11 +130,18 @@ public:
 		skeleton = skel;
 		updateVertices();
 	}
+
+	void updateBgMask(const std::vector<Geometry::Polygon<Vec2i> >& plist) {
+		mask->polygon_list = plist;
+	}			
 	
 protected:
+
+	//current bg mask for this mesh
+	BgMask::Ptr mask;
 	
 	//mesh for rendering
-	Geometry::Mesh::Ptr mesh;
+	Mesh::Ptr mesh;
 
 	//offsets from bone locations. Fixed since loading time.
 	std::vector<Eigen::Vector3f> offsets; 
@@ -131,3 +168,4 @@ protected:
 
 	World::Ptr world;
 };
+}

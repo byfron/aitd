@@ -4,6 +4,8 @@
 #include <fitd.h>
 #include <map>
 
+namespace aitd {
+
 class ObjectData;
 
 #define TYPE_MASK 0x1D1
@@ -166,3 +168,4 @@ protected:
 	Fitd::hqrEntryStruct* listLife;
 	bool finished_loading = false;
 };
+}

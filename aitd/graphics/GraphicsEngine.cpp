@@ -4,7 +4,9 @@
 #include "GameSystems.hpp"
 #include <iostream>
 #include <common/common.h>
-	
+
+namespace aitd {
+
 Camera GraphicsEngine::m_camera;
 bool GraphicsEngine::m_debug = false;
 int GraphicsEngine::WIDTH = 320;
@@ -174,4 +176,5 @@ void GraphicsEngine::stop() {
 	ddShutdown();
 	bgfx::shutdown();
 
+}
 }

@@ -6,6 +6,7 @@
 #include "ScriptingManager.hpp"
 #include "Message.hpp"
 #include <queue>
+namespace aitd {
 
 class ScriptingSystem : public System<ScriptingSystem> {
 public:
@@ -35,3 +36,4 @@ protected:
 
 	World::Ptr world;
 };
+}

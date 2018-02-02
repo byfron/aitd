@@ -12,6 +12,8 @@
 #define PRIM_TYPE_POLYGON 1
 #define PRIM_TYPE_SPHERE 2
 
+namespace aitd {
+
 using namespace Eigen;
 
 namespace Geometry {
@@ -236,35 +238,5 @@ protected:
 	Sphere sphere;
 };
 
-class Mesh {
-public:
-
-	typedef std::shared_ptr<Mesh> Ptr;
-	
-	Mesh() {
-
-	}
-
-	void submit() {
-		bgfx::setIndexBuffer(m_dibh);
-		bgfx::setVertexBuffer(0, m_dvbh);
-
-		// Set render states.
-		bgfx::setState(0
-					   | BGFX_STATE_RGB_WRITE
-					   | BGFX_STATE_ALPHA_WRITE
-					   | BGFX_STATE_DEPTH_WRITE
-					   | BGFX_STATE_DEPTH_TEST_LESS
-					   | BGFX_STATE_MSAA);
-		
-		bgfx::submit(RENDER_PASS_GEOMETRY,
-					 m_shader->getHandle());
-	}
-	
-	bgfx::DynamicVertexBufferHandle m_dvbh;
-	bgfx::DynamicIndexBufferHandle m_dibh;
-	Shader::Ptr         m_shader;
-
-};
-
+}
 }

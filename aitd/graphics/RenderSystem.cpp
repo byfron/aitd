@@ -2,6 +2,7 @@
 #include "AITDEngine.hpp"
 #include "utils/Color.hpp"
 #include <Components.hpp>
+namespace aitd {
 
 using namespace Components;
 
@@ -79,7 +80,7 @@ void MeshComponent::generateMesh() {
 		}
 	}
 
-	mesh = std::make_shared<Geometry::Mesh>();
+	mesh = std::make_shared<Mesh>();
 	const bgfx::Memory* mem;
 	mem = bgfx::copy(&vertex_buffer[0], sizeof(PosColorVertex) * vertex_buffer.size() );
 	mesh->m_dvbh = bgfx::createDynamicVertexBuffer(mem, PosColorVertex::ms_decl);
@@ -87,8 +88,10 @@ void MeshComponent::generateMesh() {
 	mem = bgfx::copy(&indices[0], sizeof(uint16_t) * indices.size() );
 	mesh->m_dibh = bgfx::createDynamicIndexBuffer(mem);
 
-	mesh->m_shader = Shader::Ptr(new Shader("vs_cubes", "fs_cubes"));
-	mesh->m_shader->init();
+	MeshState default_mesh_state;
+	default_mesh_state.m_shader = Shader::Ptr(new Shader("vs_cubes", "fs_cubes"));
+	default_mesh_state.m_shader->init();
+	mesh->m_render_passes.push_back(default_mesh_state);
 
 	updateVertices();
 }
@@ -158,6 +161,24 @@ void RenderSystem::update(EntityManager & em, EventManager &evm, float delta) {
 			// update mesh bones
 			mc.updateSkeleton(skel);
 		});
+
+	
+	// Check if actor is on top of a bgmask zone. If it's the case, update the mesh
+	// with the corresponding stencil
+	em.each<MeshComponent, TransformComponent>(
+		[delta, &em](Entity entity,
+				MeshComponent& mc,
+				TransformComponent& tc) {
+			Eigen::Vector2i location(tc.getPosition()(0), tc.getPosition()(2));
+			em.each<CameraBgZoneComponent>(
+				[delta, &mc, location](Entity entity,
+						CameraBgZoneComponent& bzc) {
+					if (bzc.zone.isWithin(location)) {
+						mc.updateBgMask(bzc.mask_list);
+					}
+				});
+		});			
+	
 	
 	// Render all meshes
 	em.each<MeshComponent, TransformComponent>(
@@ -221,4 +242,5 @@ void RenderSystem::update(EntityManager & em, EventManager &evm, float delta) {
 	// 			DebugComponent &dc) {
 	// 		dc.render(delta);
 	// 	});
+}
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+namespace aitd {
 struct ObjectData {
 	int16 ownerIdx; //actor related to this object_data
 	int16 body;
@@ -45,3 +46,4 @@ protected:
 
 	
 };
+}

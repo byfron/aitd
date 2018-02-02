@@ -5,9 +5,10 @@
 #include <map>
 
 //this could be private
-Fitd::hqrEntryStruct* ActorLoader::list_body = new Fitd::hqrEntryStruct("LISTBODY", 100000, 50); // was calculated from free mem size
-Fitd::hqrEntryStruct* ActorLoader::list_anim = new Fitd::hqrEntryStruct("LISTANIM", 100000, 50); // was calculated from free mem size
+Fitd::hqrEntryStruct* aitd::ActorLoader::list_body = new Fitd::hqrEntryStruct("LISTBODY", 100000, 50); // was calculated from free mem size
+Fitd::hqrEntryStruct* aitd::ActorLoader::list_anim = new Fitd::hqrEntryStruct("LISTANIM", 100000, 50); // was calculated from free mem size
 
+namespace aitd {
 
 enum RotationType {
 	ROTATION_BONE_TYPE = 0,
@@ -329,4 +330,5 @@ Actor::Ptr ActorLoader::load(int actor_idx) {
 	}	
 
 	return actor;	
+}
 }

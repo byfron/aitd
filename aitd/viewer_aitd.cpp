@@ -1,7 +1,7 @@
 #include <tools/AITDViewer.hpp>
 #include <graphics/GraphicsEngine.hpp>
 
-class ViewerGUI : public GraphicsEngine {
+class ViewerGUI : public aitd::GraphicsEngine {
 public:
 	ViewerGUI(const char* name, const char* desc) : GraphicsEngine(name, desc) {
 		//auto console = spd::stdout_logger_mt("Client");
@@ -17,7 +17,7 @@ public:
 
 private:
 
-	AITDViewer engine;
+	aitd::AITDViewer engine;
 	
 };
 

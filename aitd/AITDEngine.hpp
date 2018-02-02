@@ -6,6 +6,7 @@
 #include "entities/System.hpp"
 #include <map>
 
+namespace aitd {
 
 class AITDEngine {
 public:
@@ -43,7 +44,6 @@ protected:
 	ScriptingManager::Ptr scripting_manager;
 	
 	World::Ptr world;
-
-
 	
 };
+}

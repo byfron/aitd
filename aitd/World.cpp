@@ -4,8 +4,8 @@
 #include "AITDEngine.hpp"
 #include <graphics/RenderSystem.hpp>
 
+namespace aitd {
 using namespace Components;
-
 
 void World::load() {
 
@@ -210,4 +210,5 @@ void World::render(float dt) {
 	camera->render(dt);
 	bg_image->render(dt);
 	
+}
 }

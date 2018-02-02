@@ -3,7 +3,7 @@
 #include "Room.hpp"
 #include "RoomCamera.hpp"
 #include <map>
-
+namespace aitd {
 class Floor {
 
 public:
@@ -32,3 +32,4 @@ protected:
 	std::map<int, RoomCamera::Ptr> camera_map;
 };
 
+}

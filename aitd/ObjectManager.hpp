@@ -4,6 +4,8 @@
 #include <hqr.h>
 #include <map>
 
+namespace aitd {
+
 struct actorFlags {
 	uint16 flag0x0001: 1;
 	uint16 flag0x0002: 1;
@@ -72,3 +74,5 @@ public:
 	static std::map<int, ObjectData> object_map;
 };
 	
+
+}

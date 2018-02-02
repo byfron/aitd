@@ -1,5 +1,6 @@
 #include "Geometry.hpp"
 
+namespace aitd {
 namespace Geometry {
 
 #define INF 100000000	
@@ -147,4 +148,5 @@ bool doIntersect(const Eigen::Vector2i& p1, const Eigen::Vector2i& q1,
 	return false;
 }
 	
+}
 }

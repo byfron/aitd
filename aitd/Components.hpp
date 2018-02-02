@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Actor.hpp" // remove this 
+#include "Actor.hpp" // remove this
 
+namespace aitd {
 namespace Components {
 
 class SceneCollisionComponent {
@@ -125,22 +126,26 @@ public:
 	
 	// std::vector<Frame> frames;
 
-	Skeleton::Ptr current_skeleton;
-	
-
+	Skeleton::Ptr current_skeleton;   
 	
 	int anim_id = -1; //animation id (related to the game logic)
-
 
 	// equivalent of fields in actor. Maybe we don't need this at all.
 	int end_frame; // frame needs to change
 	int end_anim; // end of animation
 	
-	
-	
-	
 	Animation::Ptr anim;
 
+};
+
+// Encodes masking/stencil of background image areas	
+class CameraBgZoneComponent {
+public:
+	CameraBgZoneComponent(const Geometry::Polygon< Vec2i >& z,
+						  const std::vector<Geometry::Polygon<Vec2i> >& ml) :
+		zone(z), mask_list(ml) {}
+	Geometry::Polygon<Vec2i> zone;
+	std::vector<Geometry::Polygon<Vec2i> > mask_list;
 };
 
 class CameraZoneComponent {
@@ -191,3 +196,4 @@ public:
 };
 	
 };
+}

@@ -6,6 +6,7 @@
 #include <pak.h>
 #include <iostream>
 
+namespace aitd {
 int getNumCameras(char* data) {
 	return ((READ_LE_UINT32(data)) / 4);
 }
@@ -73,4 +74,5 @@ void Floor::load(int floor_idx) {
 		}
 	}
 	
+}
 }

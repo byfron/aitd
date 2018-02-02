@@ -13,6 +13,7 @@
 #define CAMERA_KEY_UP        UINT8_C(0x10)
 #define CAMERA_KEY_DOWN      UINT8_C(0x20)
 
+namespace aitd {
 class Camera {
 
 public:
@@ -83,5 +84,5 @@ private:
 //void createCamera();
 //void destroyCamera();
 
-
+}
 #endif
