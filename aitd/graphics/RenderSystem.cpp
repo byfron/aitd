@@ -88,10 +88,35 @@ void MeshComponent::generateMesh() {
 	mem = bgfx::copy(&indices[0], sizeof(uint16_t) * indices.size() );
 	mesh->m_dibh = bgfx::createDynamicIndexBuffer(mem);
 
-	MeshState default_mesh_state;
-	default_mesh_state.m_shader = Shader::Ptr(new Shader("vs_cubes", "fs_cubes"));
-	default_mesh_state.m_shader->init();
-	mesh->m_render_passes.push_back(default_mesh_state);
+	// so far, only one mesh state
+	mesh->m_render_passes = {	
+		{
+			// shader
+			Shader::Ptr(new Shader("vs_cubes", "fs_cubes")),
+			// render state
+			0 | BGFX_STATE_RGB_WRITE
+			| BGFX_STATE_ALPHA_WRITE
+			| BGFX_STATE_DEPTH_WRITE
+			| BGFX_STATE_DEPTH_TEST_LESS
+			| BGFX_STATE_MSAA,
+			// fstencil
+			BGFX_STENCIL_TEST_EQUAL
+			| BGFX_STENCIL_FUNC_REF(1)
+			| BGFX_STENCIL_FUNC_RMASK(1)
+			| BGFX_STENCIL_OP_FAIL_S_KEEP
+			| BGFX_STENCIL_OP_FAIL_Z_KEEP
+			| BGFX_STENCIL_OP_PASS_Z_KEEP,
+			// bstencil
+			BGFX_STENCIL_NONE,
+			// render view
+			RENDER_PASS_GEOMETRY
+		}
+	};
+
+	for (auto pass : mesh->m_render_passes) {
+		pass.m_shader->init();
+
+	}
 
 	updateVertices();
 }

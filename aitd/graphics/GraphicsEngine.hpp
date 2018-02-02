@@ -56,23 +56,12 @@ struct PosColorVertex
 	static bgfx::VertexDecl ms_decl;
 };
 
-
 // Views
 enum RenderPasses {	
 	RENDER_PASS_BACKGROUND = 0,
 	RENDER_PASS_BGMASK,
 	RENDER_PASS_GEOMETRY
 };
-
-
-struct RenderState
-{
-	uint64_t m_state;
-	uint32_t m_blendFactorRgba;
-	uint32_t m_fstencil;
-	uint32_t m_bstencil;
-};
-
 
 class GraphicsEngine : public entry::AppI {
 

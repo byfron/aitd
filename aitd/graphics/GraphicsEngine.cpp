@@ -158,13 +158,17 @@ void GraphicsEngine::run() {
 
 	bgfx::touch(0);
 	
-	// background render pass
+	// background render view
 	bx::mtxOrtho(proj, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 100.0f, 0.0f, bgfx::getCaps()->homogeneousDepth);
 	bgfx::setViewRect(RENDER_PASS_BACKGROUND, 0, 0, m_width, m_height);
 	bgfx::setViewTransform(RENDER_PASS_BACKGROUND, NULL, proj);
 
-	// Geometry render pass
-	bgfx::setViewRect(RENDER_PASS_GEOMETRY, 0, 0, uint16_t(m_width), uint16_t(m_height) );	
+	// Stencil render view
+	bgfx::setViewRect(RENDER_PASS_BGMASK, 0, 0, m_width, m_height);
+	bgfx::setViewTransform(RENDER_PASS_BGMASK, NULL, proj);
+	
+	// Geometry render view
+	bgfx::setViewRect(RENDER_PASS_GEOMETRY, 0, 0, uint16_t(m_width), uint16_t(m_height));
 	
 	DebugManager::update(deltaTime);
 	frame(deltaTime);
