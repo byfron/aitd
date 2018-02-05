@@ -16,6 +16,11 @@ protected:
 	ScriptingManager::Ptr scripting_manager;	
 };
 
+class TriggerSystem : public System<TriggerSystem> {
+public:
+	void update(EntityManager& em, EventManager &evm, float delta);
+};
+
 class CollisionSystem : public System<CollisionSystem> {
 public:
 	void update(EntityManager& em, EventManager &evm, float delta);

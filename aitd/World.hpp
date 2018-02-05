@@ -16,7 +16,7 @@ public:
 
 	void loadFloor(int);
 
-	void createObjectEntities(const ObjectData& object);
+	uint32_t createObjectEntities(int, const ObjectData& object);
 
 	//Maybe this should go to a factory class
 	Entity createCameraEntity(Floor::Ptr floor_data, int room_index, int camera_index);

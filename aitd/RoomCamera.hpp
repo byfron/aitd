@@ -40,9 +40,19 @@ public:
 	typedef std::shared_ptr<CameraBackgroundLayer> Ptr;
 	CameraBackgroundLayer(const char*);
 	void load(const char*);
-	void createOverlay(const int16* src, int size);
-	std::vector<Geometry::Polygon<Vec2i> > overlays;
-	std::vector<Geometry::Polygon<Vec2i> > overlay_zones;
+	Geometry::Polygon<Vec2i> createOverlay(const int16* src, int size);
+
+	void sortZonesFromCamera(const Vec3f&  camera_pos);
+	
+	struct OverlayMaskZone {
+		std::vector<Geometry::Polygon<Vec2i> > overlays;
+		std::vector<Geometry::Quad> overlay_zones;
+		int depth_index;
+		float dist; // to remove!
+	};
+
+	std::vector<OverlayMaskZone> overlay_masks_zones;	
+		
 };
 
 class RoomCamera {

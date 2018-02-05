@@ -39,10 +39,10 @@ public:
 		uint32_t index() { return id; }
 
 		inline bool operator== (const Id& _id_) {
-			id == _id_.id;
+			return id == _id_.id;
 		}
 		inline bool operator!= (const Id& _id_) {
-			id != _id_.id;
+			return id != _id_.id;
 		}
 	};
 
@@ -56,9 +56,9 @@ public:
 
 	//std::bitset<MAX_COMPONENTS> component_mask() const;
 
-	Id id() { return _id; }
+	Id id() const { return _id; }
 
-	bool valid() {
+	bool valid() const {
 		return _id.valid;
 	}
 

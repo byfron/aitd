@@ -26,7 +26,7 @@ struct actorFlags {
 };
 
 struct ObjectData {
-	int16 ownerIdx; 
+	uint32_t ownerIdx; // field_0: owner actor of the object (entity id)
 	int16 body;    // corresponding entry in actor (mesh) array 
 	union {
 		int16 flags;
@@ -47,7 +47,7 @@ struct ObjectData {
 	int16 room;
 	int16 life_mode;
 	int16 life;
-	int16 field_24; //what?
+	int16 stage_life; //(field_24) life id not sure for (seems relative to changing stage)
 	int16 anim; //index in the anim buffer
 	int16 frame;
 	int16 animType;

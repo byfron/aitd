@@ -438,9 +438,6 @@ void drawBgOverlay(actorStruct *actorPtr) {
 
 	numOverlayZone = *(int16 *)(data2);
 
-	std::cout << "num overlay zones:" << numOverlayZone << std::endl;
-	getchar();
-
 	for(i = 0; i < numOverlayZone; i++) {
 		int numOverlay;
 		char *src = data2 + *(uint16 *)(data + 2);

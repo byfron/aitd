@@ -1149,7 +1149,7 @@ processOpcode:
 				break;
 			}
 			////////////////////////////////////////////////////////////////////////
-			case LM_LIFE: { // LIFE
+			case LM_LIFE: { // LIFE				
 				currentProcessedActorPtr->life = *(int16 *)(currentLifePtr);
 				currentLifePtr += 2;
 				break;

@@ -44,6 +44,7 @@ void AITDEngine::init() {
 	add<ScriptingSystem>(std::make_shared<ScriptingSystem>(scripting_manager));
 	add<RenderSystem>(std::make_shared<RenderSystem>(world));
 	add<CollisionSystem>(std::make_shared<CollisionSystem>());
+	add<TriggerSystem>(std::make_shared<TriggerSystem>());
 	add<UpdateSystem>(update_sys);
 }
 

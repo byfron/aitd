@@ -680,7 +680,7 @@ void processActor2() {
 	}
 
 	switch(ptr->type) {
-	case 0: {
+	case 0: { //
 		int x;
 		int y;
 		int z;
@@ -731,8 +731,11 @@ void processActor2() {
 	case 10: {
 		int life;
 
+		std::cout << "prev life:" << currentProcessedActorPtr->life << std::endl;
 		life = objectTable[currentProcessedActorPtr->field_0].field_24;
-
+		std::cout << "next life:" << life << std::endl;
+		getchar();
+		
 		if(life == -1)
 			return;
 

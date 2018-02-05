@@ -28,7 +28,9 @@ Entity World::createCameraEntity(Floor::Ptr floor_data, int room_index, int came
 	transform.col(3).head(3) = cam_pos;
 	
 	// view matrix is the inverse of the camera trasnformation matrix;
-	entity_manager->assign<CameraComponent>(camera.id(), room_cam->projection,
+	entity_manager->assign<CameraComponent>(camera.id(),
+											cam_pos,
+											room_cam->projection,
 											transform.inverse()); 
 	entity_manager->assign<BgImageComponent>(camera.id(), room_cam->getBackgroundImagePtr());
 
@@ -63,6 +65,32 @@ void World::loadFloor(int floor_id) {
 	for (int camera_index : camera_indices) {
 		Entity camera = createCameraEntity(floor_data, current_room_id, camera_index);
 		AITDEngine::CameraEntityToIndex[camera.id().id] = camera_index;
+
+		//create bg zones
+		RoomCamera::Ptr cam = floor_data->getCamera(camera_index);
+		std::vector<CameraBackgroundLayer::OverlayMaskZone> overlay_masks_zones;
+		for (auto& bglayer: cam->bglayer_vector) {
+			for (auto& overlay_mask_zone : bglayer->overlay_masks_zones) { 
+				overlay_masks_zones.push_back(overlay_mask_zone);
+			}
+		}
+
+		entity_manager->assign<CameraBgZoneComponent>(
+			camera.id(),
+			overlay_masks_zones);
+
+		// auto bzc = entity_manager->getComponentPtr<CameraBgZoneComponent>(camera.id());
+		// bzc->mask = std::make_shared<BgMask>();
+		// std::vector<BgMask::IndexPolygon> overlay_list;
+		// for (auto& omz : bzc->overlay_masks_zones)
+		// {
+		// 	for (auto& overlay : omz.overlays) {
+		// 		overlay_list.push_back(BgMask::IndexPolygon(omz.depth_index, overlay));
+		// 	}
+		// }
+		// std::cout << "re-crafting stencil with " << overlay_list.size() << " ipos" << std::endl;	
+		// bzc->mask->craftStencilBuffer(overlay_list);
+
 	}
 
 	for (auto cam : AITDEngine::CameraEntityToIndex) {
@@ -73,11 +101,16 @@ void World::loadFloor(int floor_id) {
 
 	//maybe instead keep a map id/Entity
 	//Objects ==================================================================	
-	for (auto object_it : ObjectManager::object_map) {
+	for (auto& object_it : ObjectManager::object_map) {
 		if (object_it.second.stage == floor_id) {
 			if (object_it.second.room == current_room_id) //TODO: all rooms seen by the camera!!
 			{
-				createObjectEntities(object_it.second);
+				uint32_t id = createObjectEntities(object_it.first, object_it.second);
+
+				// keep a map of actor-objects?
+				object_it.second.ownerIdx = id;
+
+				
 			}
 		}
 	}
@@ -86,29 +119,38 @@ void World::loadFloor(int floor_id) {
 	// Display debug meshes with collison stuff
 	// Collision meshes are stored as world coordinates for each floor
 	Room::Ptr room = floor_data->getRoom(current_room_id);
-	{
-		for (auto& box : room->colision_vector) {
+	
+	for (auto& box : room->colision_vector) {
 
-			Vector3i p1 = box->p1;
-			Vector3i p2 = box->p2;
-			p1(1) = -p1(1);
-			p2(1) = -p2(1); //TODO: revert the Y coordinate at loading time
+		Vector3i p1 = box->p1;
+		Vector3i p2 = box->p2;
+		p1(1) = -p1(1);
+		p2(1) = -p2(1); //TODO: revert the Y coordinate at loading time
+		
+		//Add collision entities for the scene
+		Entity scene_entity = entity_manager->createLocal();
+		entity_manager->assign<SceneCollisionComponent>(
+			scene_entity.id(),
+			Geometry::BBox(Vec3f(p1(0), p2(1), p1(2)),
+						   Vec3f(p2(0), p1(1), p2(2))));
+	}
 
-			//Add collision entities for the scene
-			Entity scene_entity = entity_manager->createLocal();
-			entity_manager->assign<SceneCollisionComponent>(
-				scene_entity.id(),
-				Geometry::BBox(Vec3f(p1(0), p2(1), p1(2)),
-							   Vec3f(p2(0), p1(1), p2(2))));
-				
-			// //Add debug objects for each colision vector
-			// Entity debug_obj = entity_manager->createLocal();
-			// entity_manager->assign<DebugComponent>(
-			// 	debug_obj.id(),				
-			// 	Geometry::DebugMesh::Ptr(new Geometry::DebugBox(p1.cast<float>(),
-			// 													p2.cast<float>()))
-			// 	);
-		}
+	// Triggers
+	for (auto& box : room->sce_zone_vector) {
+
+		Vector3i p1 = box->p1;
+		Vector3i p2 = box->p2;
+		p1(1) = -p1(1);
+		p2(1) = -p2(1); //TODO: revert the Y coordinate at loading time
+		
+		Entity trigger_entity = entity_manager->createLocal();
+		entity_manager->assign<TriggerComponent>(
+			trigger_entity.id(),
+			Geometry::BBox(Vec3f(p1(0), p2(1), p1(2)),
+						   Vec3f(p2(0), p1(1), p2(2))),
+			box->type,
+			box->parameter
+			);
 	}
 
 	// Display location of camera
@@ -129,7 +171,7 @@ void World::switchToCamera(Entity::Id camera_id) {
 	current_camera_id = camera_id;
 }
 
-void World::createObjectEntities(const ObjectData& object) {
+uint32_t World::createObjectEntities(int object_index, const ObjectData& object) {
 
 
 	//how do we know which one is the main character??
@@ -140,7 +182,7 @@ void World::createObjectEntities(const ObjectData& object) {
 	
 	//Create all entities at this floor
 	Entity object_entity = entity_manager->createLocal();
-
+	
 	// if track mode is user input, this is the player entity
 	// TODO: we should find a better way to figure this out?
 	if (object.track_mode == 1) {
@@ -172,6 +214,7 @@ void World::createObjectEntities(const ObjectData& object) {
 		// metadata used by the scripting/logic
 		// I put it temporarily in the component but we should probably split it		
 		entity_manager->assign<MetaDataComponent>(object_entity.id(),
+												  object_index,
 												  object.flags,
 												  object.body,
 												  object.life,
@@ -199,7 +242,9 @@ void World::createObjectEntities(const ObjectData& object) {
 		box.translation = Vec3f(object.x, -object.y, object.z);
 		entity_manager->assign<ActorCollisionComponent>(object_entity.id(), box);
 		
-	}	
+	}
+
+	return object_entity.id().id;
 }
 
 void World::render(float dt) {
@@ -209,6 +254,8 @@ void World::render(float dt) {
 
 	camera->render(dt);
 	bg_image->render(dt);
+
+	//render stencil buffer here? we only need to do it once (when the camera changes!)
 	
 }
 }

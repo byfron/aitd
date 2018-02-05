@@ -24,8 +24,8 @@ void ObjectData::readFromStream(Common::SeekableReadStream *stream) {
 	this->stage = stream->readUint16LE();
 	this->room = stream->readUint16LE();
 	this->life_mode = stream->readUint16LE();
-	this->life = stream->readUint16LE();	
-	this->field_24 = stream->readUint16LE();
+	this->life = stream->readUint16LE();
+	this->stage_life = stream->readUint16LE();	//field_24
 	this->anim = stream->readUint16LE();
 	this->frame = stream->readUint16LE();
 	this->animType = stream->readUint16LE();

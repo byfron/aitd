@@ -14,21 +14,16 @@ struct BBox {
 	void load(const char*);	
 	Vector3i p1;
 	Vector3i p2;
-	int16 parameter;
-	int16 type;
+	int16 parameter; 
+	int16 type; //0: room change
 };
 
 class Room {
 public:
-
 	typedef std::shared_ptr<Room> Ptr;
-
 	void load(const char *data);
-
 	std::vector<BBox::Ptr> colision_vector;
 	std::vector<BBox::Ptr> sce_zone_vector;
 	std::vector<int> camera_indices;
-	Eigen::Matrix<float,3,1> world_pos;
-	
-   
+	Eigen::Matrix<float,3,1> world_pos; 
 };

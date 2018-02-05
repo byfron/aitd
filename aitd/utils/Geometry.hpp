@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <bgfx/bgfx.h>
 #include "Shader.hpp"
+#include <graphics/clip2tri/clipper.hpp>
 #include <DebugManager.hpp>
 #include <vector>
 #include <assert.h>
@@ -47,6 +48,41 @@ public:
 	Vec3f normal;
 };
 
+	//TODO rename AxisAlignedQuad?
+class Quad {
+public:
+	Quad() {}
+	Quad(const Vec2f& _min, const Vec2f& _max) {
+		min = _min;
+		max = _max;
+	}
+
+	//pos projects in the floor before computing the distance!
+	float distanceFrom(const Vec3f& pos) {
+		float dx = std::max(0.0f, std::max(min(0) - pos(0), pos(0) - max(0)));
+		float dy = std::max(0.0f, std::max(min(1) - pos(2), pos(2) - max(1)));
+		return sqrt(dx*dx + dy*dy);
+	}
+
+	bool isWithin(const Quad& q) const {
+		if (q.min(0) >= min(0) && q.min(1) >= min(1) &&
+			q.max(0) <= max(0) && q.max(1) <= max(1)) {
+			return true;
+		}
+		return false;
+	}
+	
+	bool isWithin(const Vec2f& p) const {
+		if (p(0) >= min(0) && p(0) < max(0) &&
+			p(1) >= min(1) && p(1) < max(1)) {
+			return true;
+		}
+		return false;
+	}
+
+	Vec2f min;
+	Vec2f max;
+};
 
 template <class T>	
 class Polygon {
@@ -90,6 +126,8 @@ public:
 	std::vector<T> points;
 };
 
+
+	
 class BBox {
 public:
 	BBox() {}
@@ -103,6 +141,11 @@ public:
 					p_max + translation);
 	}
 
+	Quad getBaseQuad() const {
+		return Quad(Vec2f(p_min(0), p_min(1)),
+					Vec2f(p_max(0), p_max(1)));
+	}
+	
 	Polygon<Vec2f> getBasePolygon() const {
 		BBox box = getTransformedBox();
 		std::vector<Vec2f> points;
@@ -157,6 +200,7 @@ Eigen::Matrix3f getXRotMat(float, float);
 Eigen::Matrix3f getYRotMat(float, float);
 Eigen::Matrix3f getZRotMat(float, float);
 
+Polygon<Eigen::Vector2i> computePolygonFromScatter(const std::vector<Eigen::Vector2i>& points);
 Vec3f computeVectorToCollision(const BBox&, const BBox&, const Vec3f&);	
 bool linePlaneIntersection(Vec3f ray, Vec3f rayOrigin, Vec3f normal,
 						   Vec3f planePoint, Vec3f & contact);
@@ -238,5 +282,78 @@ protected:
 	Sphere sphere;
 };
 
+
+
+class Clipper {
+public:
+	
+	template <class T>	
+	static bool clip(const Polygon<T>& poly, const Polygon<T>& clip_poly, Polygon<T>& clipped_poly) {
+
+		ClipperLib::Clipper clpr;
+		ClipperLib::Path mask_poly;
+		ClipperLib::Path mesh_poly;
+		ClipperLib::Paths solution;
+
+		mask_poly.resize(poly.points.size());
+		mesh_poly.resize(clip_poly.points.size());
+
+		std::cout << "===== POLY" << std::endl;
+		for (int i = 0; i < poly.points.size(); i++) {
+			mask_poly[i].X = poly.points[i](0);
+			mask_poly[i].Y = poly.points[i](1);
+			std::cout << poly.points[i].transpose() << std::endl;
+		}
+
+		std::cout << "===== CLIP POLY" << std::endl;		
+		for (int i = 0; i < clip_poly.points.size(); i++) {
+			mesh_poly[i].X = clip_poly.points[i](0);
+			mesh_poly[i].Y = clip_poly.points[i](1);
+			std::cout << clip_poly.points[i].transpose() << std::endl;
+		}	   
+		
+		clpr.AddPath(mask_poly, ClipperLib::ptSubject, true);
+		clpr.AddPath(mesh_poly, ClipperLib::ptClip, true);
+		
+		if (!clpr.Execute(ClipperLib::ctIntersection, solution,
+						  ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd)) {
+			std::cout << "Error clipping" << std::endl;
+		}
+
+		std::vector<T> res_points;
+
+				
+		if (solution.size() == 0) {
+			return false;
+		}
+
+		int max_size = 0;
+		ClipperLib::Path res;
+		for (auto& path: solution) {
+			//std::cout << "SIZE:" << path.size() << std::endl;
+			if (path.size() > max_size) {
+				max_size = path.size();
+				res = path;				
+			}
+			   
+		}
+
+		for (auto& p: res) {
+			res_points.push_back(T(p.X, p.Y));
+		}
+		clipped_poly = Polygon<T>(res_points);
+		return true;
+		
+		auto& path = solution[0];
+		for (auto& p: path) {
+			res_points.push_back(T(p.X, p.Y));
+		}
+		
+		clipped_poly = Polygon<T>(res_points);
+		return true;
+	}
+	
+};	
+	
 }
 }

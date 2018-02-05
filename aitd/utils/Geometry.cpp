@@ -147,6 +147,11 @@ bool doIntersect(const Eigen::Vector2i& p1, const Eigen::Vector2i& q1,
 
 	return false;
 }
+
+Polygon<Eigen::Vector2i> computePolygonFromScatter(const std::vector<Eigen::Vector2i>& points) {
+
+	
+}
 	
 }
 }

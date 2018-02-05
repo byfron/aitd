@@ -57,8 +57,9 @@ struct PosColorVertex
 };
 
 // Views
-enum RenderPasses {	
+enum RenderPasses {		
 	RENDER_PASS_BACKGROUND = 0,
+	RENDER_PASS_PRE_BGMASK, //we use it to set the mesh masks
 	RENDER_PASS_BGMASK,
 	RENDER_PASS_GEOMETRY
 };
@@ -109,6 +110,7 @@ public:
 	static Camera & camera() { return m_camera; }
 	static bool debugEnabled() { return m_debug; }
 
+	static bool show_debug_shapes;
 	static int WIDTH;
 	static int HEIGHT;
 protected:
@@ -121,6 +123,12 @@ protected:
 	static bool m_debug;
 	
 
+	//Pre-mask texture buffer // TODO: wrap this into its own FrameBuffer class. 
+	bgfx::TextureHandle m_gbufferTex[1];
+	bgfx::FrameBufferHandle m_preMaskBuffer;
+	bgfx::UniformHandle u_preMaskTex;
+
+	
 	InputManager m_input_manager;
 
 };

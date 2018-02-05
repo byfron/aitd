@@ -140,24 +140,24 @@ int ScriptingManager::evalVar(char** life_ptr, Entity::Id entity_id) {
 
 	int16 var1 = getArg(life_ptr);
 
-	std::cout << "var1=" << var1 << " ";
+	//std::cout << "var1=" << var1 << " ";
 		
 	if (var1 == -1) {
 		int16 var2 = getArg(life_ptr);
-		std::cout << "|" << var2;
+		//std::cout << "|" << var2;
 		return var2;
 	}
 	else if (var1 == 0) {
 		int16 var2 = getArg(life_ptr);
-		std::cout << "| vars[" << var2 << "] = " << AITDEngine::globals[var2];
+		//std::cout << "| vars[" << var2 << "] = " << AITDEngine::globals[var2];
 		return AITDEngine::globals[var2];
 	}
 	else {
 
-		std::cout << "| reg-";
+		//std::cout << "| reg-";
 
 		//if 5th most significant bit is active. (is gonna query about another actor?). 
-		if(var1 & 0x8000) { 
+		if(var1 & 0x8000) {
 			int16 object_id = getArg(life_ptr);
 			int actor_id = ObjectManager::object_map[object_id].ownerIdx; // look for corresponding actor
 			
@@ -181,7 +181,7 @@ int ScriptingManager::evalVar(char** life_ptr, Entity::Id entity_id) {
 		var1 &= 0x7FFF;
 		var1--;
 
-		std::cout << "evalVar switch: " << var1 << std::endl;
+		//std::cout << "evalVar switch: " << var1 << std::endl;
 		
 		switch(var1) {			
 		case 0x0: { //return colliding actor (-1) otherwise			
@@ -231,7 +231,7 @@ int ScriptingManager::evalVar(char** life_ptr, Entity::Id entity_id) {
 		}
 		case 0x9: { // BODY_NUM. Body index of current actor (from listBody buffer)
 			MetaDataComponent* mdc = entity_manager->getComponentPtr<MetaDataComponent>(entity_id);
-			std::cout << "BodyNum" << mdc->body_num << "|";
+			//std::cout << "BodyNum" << mdc->body_num << "|";
 			return mdc->body_num;
 		}
 		case 0xA: { // MARK. Current mark in the track (track control point?)
@@ -279,7 +279,7 @@ int ScriptingManager::evalVar(char** life_ptr, Entity::Id entity_id) {
 
 		}
 		case 0x14: { // User button
-			std::cout << "BUTTON|";
+			//std::cout << "BUTTON|";
 			UserInputComponent* uic = entity_manager->getComponentPtr<UserInputComponent>(entity_id);
 			return 0;
 		}
@@ -362,12 +362,12 @@ int ScriptingManager::evalVar(char** life_ptr, Entity::Id entity_id) {
 
 void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char** life_ptr) {
 
-	std::cout << "switch object" <<  command << std::endl;
+	//std::cout << "switch object" <<  command << std::endl;
 
 	
 	switch(command) {
 	case LM_BODY: {//body = var
-		std::cout << "LM_BODY";
+		std::cout << ">> LM_BODY";
 		ObjectManager::object_map[object_idx].body = getArg(life_ptr);
 		break;
 	}
@@ -377,14 +377,14 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 		break;
 	}
 	case LM_TYPE: {//flags = flags & (data1 & TYPE_MASK)
-		std::cout << "LM_TYPE";
+		std::cout << ">> LM_TYPE";
 		int flags = getArg(life_ptr) & TYPE_MASK;
 		ObjectManager::object_map[object_idx].flags =
 			(ObjectManager::object_map[object_idx].flags & (~TYPE_MASK)) + flags;
 		break;
 	}
 	case LM_ANIM_ONCE: { //anim = data1, animInfo = data2, animType = ANIM_ONCE
-		std::cout << "LM_ANIM_ONCE";
+		std::cout << ">> LM_ANIM_ONCE";
 		ObjectManager::object_map[object_idx].anim = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].animInfo = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].animType = ANIM_ONCE;
@@ -392,13 +392,14 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 		break;
 	}
 	case LM_ANIM_REPEAT: {
-		std::cout << "LM_ANIM_REPEAT";
+		std::cout << ">> LM_ANIM_REPEAT";
 		ObjectManager::object_map[object_idx].anim = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].animInfo = -1;
 		ObjectManager::object_map[object_idx].animType = ANIM_REPEAT;
 		break;
 	}
 	case LM_ANIM_ALL_ONCE: {
+		std::cout << ">> LM_ANIM_ALL_ONCE";
 		ObjectManager::object_map[object_idx].anim = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].animInfo = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].animType = ANIM_ONCE | ANIM_UNINTERRUPTABLE;
@@ -412,6 +413,7 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 	}
 	case LM_MOVE: {
 		//etage, room
+		std::cout << ">> LM_MOVE";
 		ObjectManager::object_map[object_idx].stage = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].room = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].life_mode = 0;
@@ -424,7 +426,7 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 		break;
 	}
 	case LM_STAGE: {
-		std::cout << "LM_STAGE";
+		std::cout << ">> LM_STAGE";
 		//stage, room, x, y, z
 		ObjectManager::object_map[object_idx].stage = getArg(life_ptr);
 		ObjectManager::object_map[object_idx].room = getArg(life_ptr);
@@ -434,7 +436,7 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 		break;
 	}
 	case LM_TEST_COL: {
-		std::cout << "LM_TEST_COL";
+		//std::cout << "LM_TEST_COL";
 		int test = getArg(life_ptr);
 		if(test) {
 			ObjectManager::object_map[object_idx].flags |= 0x20;
@@ -445,12 +447,12 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 		break;
 	}
 	case LM_LIFE: {
-		std::cout << "LM_LIFE";
+		//std::cout << "LM_LIFE";
 		ObjectManager::object_map[object_idx].life = getArg(life_ptr);
 		break;
 	}
 	case LM_LIFE_MODE: {
-		std::cout << "LM_LIFE_MODE";
+		//std::cout << "LM_LIFE_MODE";
 		ObjectManager::object_map[object_idx].life_mode = getArg(life_ptr);
 		break;
 	}
@@ -474,7 +476,7 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 	case LM_START_CHRONO:
 		break;
 	default:
-		std::cout << "(Object) Unsupported opcode" << std::endl;
+		//std::cout << "(Object) Unsupported opcode" << std::endl;
 		getchar();
 		break;
 	}
@@ -482,7 +484,7 @@ void ScriptingManager::loadObjectCommand(CommandId command, int object_idx, char
 
 void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id, char** life_ptr) {
 
-	std::cout << ">CMD: " <<  command << std::endl;
+	//std::cout << ">CMD: " <<  command << std::endl;
 	
 	Components::MetaDataComponent *mdc =
 		entity_manager->getComponentPtr<Components::MetaDataComponent>(entity_id);
@@ -490,19 +492,26 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	static int switch_val;
 	
 	switch(command) {
-	case LM_BODY: { //body = var
 
+	// Assign new body (mesh/anim) to the current actor (entity)
+	case LM_BODY: { //body = var 
+		std::cout << "$$ LM_BODY" << std::endl;
 		int new_object_id = evalVar(life_ptr, entity_id);
+
+		ObjectManager::object_map[mdc->object_id].body = new_object_id;
+		
 		if (mdc->body_num != new_object_id) {
 			mdc->body_num = new_object_id;
-
+			std::cout << "assign body num" << std::endl;
 			//assign new mesh/body/animation in the current frame
 			
 		}								
 		break;
 	}	
 	case LM_BODY_RESET: { //body = var, anim = var
+		std::cout << "$$ LM_BODY_RESET" << std::endl;
 
+		
 		//assign new mesh/body/animation in the frame zero
 		int new_object_id = evalVar(life_ptr, entity_id);
 		int new_anim_id = evalVar(life_ptr, entity_id);
@@ -515,7 +524,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_DEF_ZV: { // loads actor bounding box from data (in global coords)
-
+		std::cout << "$$ LM_DEF_ZV" << std::endl;
 		int x1 = getArg(life_ptr);
 		int x2 = getArg(life_ptr);
 		int y1 = getArg(life_ptr);
@@ -526,7 +535,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_DEF_ABS_ZV: { // loads actor bounding box (local coords)?
-
+		std::cout << "$$ LM_ABS_ZV" << std::endl;
 		int x1 = getArg(life_ptr);
 		int x2 = getArg(life_ptr);
 		int y1 = getArg(life_ptr);
@@ -545,10 +554,12 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_TYPE: { //flags = flags & (data1 & TYPE_MASK) modifies actor flags
-		std::cout << "LM_TYPE";
+		std::cout << "$$ LM_TYPE:";
 		int flags = getArg(life_ptr);
 		int current_flags = mdc->flags;
 		mdc->flags = (mdc->flags & 0xFE2E) + flags;
+
+		std::cout << flags << std::endl;
 
 		// top anim??? deleteSub???
 		
@@ -559,25 +570,38 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_ANIM_ONCE: { //loads anim info/state
-		std::cout << "LM_ANIM_ONCE";
 		int anim_id = getArg(life_ptr);
-		int anim_id2 = getArg(life_ptr); // no idea what this is (field_44?)				
+		int anim_id2 = getArg(life_ptr); // no idea what this is (field_44?)
+
+		std::cout << "$$ LM_ANIM_ONCE: " << anim_id << std::endl;
+
+		if (anim_id == -1) {
+			mdc->anim = -1;
+			mdc->field44 = -2;
+		}
+		else {
+
+		}
+		
 		break;
 	}
 		
 	case LM_ANIM_REPEAT: { //loads anim info/state
-		std::cout << "LM_ANIM_REPEAT";
-		int anim_id = getArg(life_ptr);		
+
+		int anim_id = getArg(life_ptr);
+		std::cout << "$$ LM_ANIM_REPEAT: " << anim_id << std::endl;
 		break;
 	}
 		
 	case LM_ANIM_ALL_ONCE: { //anim = data1, animInfo = data2, animType = ANIM_ONCE
+		std::cout << "$$ LM_ANIM_ALL_ONCE" << std::endl;		
 		int anim_id = getArg(life_ptr);
 		int next_anim_id = getArg(life_ptr); //(field_44)		
 		break;
 	}
 		
 	case LM_ANIM_RESET: {
+		std::cout << "$$ LM_ANIM_RESET" << std::endl;		
 		int anim_id = getArg(life_ptr);
 		int next_anim_id = getArg(life_ptr); //(field_44)		
 		break;
@@ -648,22 +672,26 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 		
 	case LM_DO_MOVE: {
+		std::cout << "$$ LM_DO_MOVE: ";
 		switch(mdc->track_mode) {
 		case 1: //MANUAL			
 			//perform movement of controlled entity?
 			//NOTE: this is handled by the input system instead
 			//do it here instead?
+			std::cout << "User Movement" << std::endl;
 			break;
 		case 2: //FOLLOW
+			std::cout << "Follow Movement" << std::endl;
 			break;			
 		case 3: //TRACK
+			std::cout << "Track Movement" << std::endl;
 			break;
 		};
 		break;
 	}
 		
 	case LM_ANIM_MOVE: {
-		std::cout << "LM_ANIM_MOVE:";
+		std::cout << "$$ LM_ANIM_MOVE" << std::endl;
 		
 		int v1 = getArg(life_ptr); //anim_id1
 		int v2 = getArg(life_ptr); //anim_id2
@@ -673,7 +701,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		int v6 = getArg(life_ptr); //?
 		int v7 = getArg(life_ptr); //?
 
-		std::cout << v1 << "," << v2 << "," << v3;
+		//std::cout << v1 << "," << v2 << "," << v3;
 		
 		break;
 	}
@@ -695,7 +723,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 		
 	case LM_ANGLE: {
-		std::cout << "LM_ANGLE";
+		//std::cout << "LM_ANGLE";
 		//alpha, beta, gamma
 		int alpha = getArg(life_ptr);
 		int beta = getArg(life_ptr);
@@ -709,7 +737,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 		
 	case LM_STAGE: {
-		std::cout << "LM_STAGE";
+		//std::cout << "LM_STAGE";
 		//stage, room, x, y, z
 		int etage = getArg(life_ptr);
 		int room = getArg(life_ptr);
@@ -720,7 +748,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 		
 	case LM_TEST_COL: {
-		std::cout << "LM_TEST_COL";
+		//std::cout << "LM_TEST_COL";
 		int flags = getArg(life_ptr);
 		break;
 	}
@@ -730,14 +758,15 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 		
 	case LM_LIFE: {
-		std::cout << "LM_LIFE";
+		//std::cout << "LM_LIFE";
 		int life = getArg(life_ptr);
 		mdc->life = life;
 		break;
 	}
 		
 	case LM_STAGE_LIFE: {
-		int life = getArg(life_ptr); //set life on the object structure? (default life?)
+		int life = getArg(life_ptr);
+		//ObjectManager::object_map[mdc->object_idx].stage_life = life;
 		break;
 	}
 	case LM_LIFE_MODE: {
@@ -747,7 +776,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 	case LM_DELETE: {
 		int object_id = getArg(life_ptr);
-		std::cout << "LM_DELETE " << object_id << ":";
+		//std::cout << "LM_DELETE " << object_id << ":";
 		//delete object
 		break;
 	}
@@ -763,12 +792,12 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_TAKE: {
-		std::cout << "LM_TAKE";
+		//std::cout << "LM_TAKE";
 		int object_id = getArg(life_ptr); //take object
 		break;
 	}		
 	case LM_IN_HAND: {
-		std::cout << "LM_IN_HAND";
+		//std::cout << "LM_IN_HAND";
 		int object_id = getArg(life_ptr); //put obj in hand
 		break;
 	}
@@ -823,11 +852,11 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_ANIM_SAMPLE: {
-		std::cout << "LM_ANIM_SAMPLE:";
+		//std::cout << "LM_ANIM_SAMPLE:";
 		int sound_id = evalVar(life_ptr, entity_id);
 		int anim_id = getArg(life_ptr);
 		int frame = getArg(life_ptr);
-		std::cout << sound_id << "," << anim_id << "," << frame;
+		//std::cout << sound_id << "," << anim_id << "," << frame;
 		break;
 	}
 	case LM_2D_ANIM_SAMPLE: {
@@ -903,7 +932,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_DEF_SEQUENCE_SAMPLE: {
-		std::cout << "LM_DEF_SEQ: ";
+		//std::cout << "LM_DEF_SEQ: ";
 		int num_params = ARG;
 		std::vector<int> frame_params, sample_params;
 		for (int i = 0; i < num_params; i++) {
@@ -916,7 +945,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_INVENTORY: {
-		std::cout << "LM_INVENTORY: ";
+		//std::cout << "LM_INVENTORY: ";
 		int status_screen_flag = getArg(life_ptr);
 		break;
 	}
@@ -941,7 +970,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_VAR: {
-		std::cout << "LM_VAR";
+		//std::cout << "LM_VAR";
 		int var_id = getArg(life_ptr);
 		AITDEngine::globals[var_id] = evalVar(life_ptr, entity_id);
 		break;
@@ -976,7 +1005,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 
 		int valueA = evalVar(life_ptr, entity_id);
 		int valueB = evalVar(life_ptr, entity_id);
-		std::cout << "IF " << valueA << "==" << valueB << std::endl;
+		//std::cout << "IF " << valueA << "==" << valueB << std::endl;
 
 		if (valueA == valueB) {
 			*life_ptr += 2;
@@ -1050,7 +1079,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	case LM_GOTO: {
 		int jump = getArg(life_ptr);
 		*life_ptr += jump*2;
-		std::cout << "GOTO :" << jump << " ";
+		//std::cout << "GOTO :" << jump << " ";
 		break;
 	}
 	case LM_SWITCH: {
@@ -1059,7 +1088,7 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 	}
 	case LM_CASE: {
 		int case_val = getArg(life_ptr);
-		std::cout << "LM_CASE " << case_val << "==" << switch_val;
+		//std::cout << "LM_CASE " << case_val << "==" << switch_val;
 		if (case_val == switch_val) {
 			*life_ptr += 2;
 		}
@@ -1070,12 +1099,12 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_MULTI_CASE: {
-		std::cout << "MULTI_CASE:";
+		//std::cout << "MULTI_CASE:";
 		int num_cases = getArg(life_ptr);
 		bool switch_flag = false;
 		for (int i = 0; i < num_cases; i++) {
 			int case_val = getArg(life_ptr);
-			std::cout << "CASE if " << case_val << "==" << switch_val;
+			//std::cout << "CASE if " << case_val << "==" << switch_val;
 			if (case_val == switch_val) {
 				switch_flag = true;
 			}
@@ -1091,29 +1120,29 @@ void ScriptingManager::loadActionCommand(CommandId command, Entity::Id entity_id
 		break;
 	}
 	case LM_RETURN: {
-		std::cout << "RETURN";
+		//std::cout << "RETURN";
 		finished_loading = true;
 		break;
 	}
 	case LM_END: {
-		std::cout << "END";
+		//std::cout << "END";
 		finished_loading = true;
 		break;
 	}
 	default: {
-		std::cout << "Unsupported opcode" << std::endl;
+		//std::cout << "Unsupported opcode" << std::endl;
 		getchar();
 		break;
 	}
 
 	}
 
-	std::cout << std::endl;
+	//std::cout << std::endl;
 }
 
 void ScriptingManager::runScript(int script_id, Entity::Id entity_id, const EntityManager& em) {
 
-	std::cout << "============ LIFE:" << script_id << std::endl;
+	//std::cout << "============ LIFE:" << script_id << std::endl;
 	char *life_ptr = listLife->get(script_id);
 	
 	finished_loading = false;
@@ -1128,8 +1157,7 @@ void ScriptingManager::runScript(int script_id, Entity::Id entity_id, const Enti
 			int16 object_idx = *(int16 *)life_ptr;
 			life_ptr += 2;
 
-			std::cout << "[opcode & 0x8000] : " << object_idx << ":";
-
+			//std::cout << "[opcode & 0x8000] : " << object_idx << ":";
 			
 			//	assert(object_idx != -1);
 			if (object_idx != -1) {

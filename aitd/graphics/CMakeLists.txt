@@ -12,8 +12,12 @@ add_library(GraphicsCore
 
 
 target_link_libraries(GraphicsCore
+  poly2tri
+  clip2tri
   ${BGFX_LIBRARIES})
 
   
 target_include_directories(GraphicsCore PUBLIC
   ${SDL_INCLUDE_DIR})
+
+add_subdirectory(clip2tri)

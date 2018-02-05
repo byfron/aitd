@@ -37,7 +37,7 @@ void CameraZoneEntry::load(const char* data) {
 		float angle;
 		int idx;
 		bool operator<(const Pair& a) {
-			return angle < a.angle;
+			return angle > a.angle;
 		}
 	};
 	
@@ -90,16 +90,17 @@ CameraBackgroundLayer::CameraBackgroundLayer(const char* data) {
 
 void CameraBackgroundLayer::load(const char* data) {
 	int num_overlay_zones = *(int16 *)(data);
-	std::cout << "num overlay zones:" << num_overlay_zones << std::endl;
 
 	const char *curr_data = data + 2;
+
+	std::cout << "num zones:" << num_overlay_zones << std::endl;
 	
 	for (int i = 0; i < num_overlay_zones; i++) {
 
+		OverlayMaskZone omz;
+		
 		int num_params = *(uint16 *)(curr_data);		
 		const char *src = data + *(uint16 *)(curr_data + 2);
-
-		std::cout << "num params" << num_params << std::endl;
 
 		// This zone is used to determine if the overlay affects the actor
 		// For instance a monster behind a wall should be affected by the wall overlays,
@@ -109,42 +110,117 @@ void CameraBackgroundLayer::load(const char* data) {
 		// When rendering each actor if it's in a zone affected, build a stencil buffer
 		// and apply it 
 
-		Geometry::Polygon<Vec2i> overlay_zone;
 		const char* param_data = curr_data + 4;
 		for (int j = 0; j < num_params; j++) {
-			int zoneX1 = *(int16 *)(param_data);
-			int zoneZ1 = *(int16 *)(param_data + 2);
-			int zoneX2 = *(int16 *)(param_data + 4);
-			int zoneZ2 = *(int16 *)(param_data + 6);
-			overlay_zone.points.push_back(Vec2i(zoneX1, zoneZ1));
-			overlay_zone.points.push_back(Vec2i(zoneX2, zoneZ2));
+			Geometry::Quad overlay_zone;
+			int16 zoneX1 = *(int16 *)(param_data);
+			int16 zoneZ1 = *(int16 *)(param_data + 2);
+			int16 zoneX2 = *(int16 *)(param_data + 4);
+			int16 zoneZ2 = *(int16 *)(param_data + 6);
+			overlay_zone.min = Vec2f(zoneX1, zoneZ1)*10;
+			overlay_zone.max = Vec2f(zoneX2, zoneZ2)*10;
+			omz.overlay_zones.push_back(overlay_zone);
 			param_data += 0x8;
-		}
-		overlay_zones.push_back(overlay_zone);
 
+			
+		} 
+
+		//const char *src_tmp = src;
 		int num_overlays = *(int16 *)src;
 		
 		src += 2;
 
 		for (int j = 0; j < num_overlays; j++) {
 			int size = *(int16 *)(src);
-			std::cout << "size:" << size << std::endl;
 			src += 2;
-			createOverlay((int16*)src, size);			
+			Geometry::Polygon<Vec2i> overlay = createOverlay((int16*)src, size);
+			omz.overlays.push_back(overlay);
 			src += size * 4;
 		}
 
+
+		overlay_masks_zones.push_back(omz);
+
 		curr_data += 2;
 		curr_data += ((num_params * 4) + 1) * 2;
+
+		//curr_data = src_tmp + 2 + ((num_overlays * 4) + 1)*2;
+	}
+
+}
+
+void CameraBackgroundLayer::sortZonesFromCamera(const Vec3f& camera_pos) {
+
+
+	int di = 1;
+	for (auto& omz : overlay_masks_zones) {
+		omz.depth_index = di;
+		di++;
+	}
+	return;
+
+	
+	struct Pair {
+		float dist;
+		int idx;
+		// bool operator<(const Pair& a) {
+		// 	return dist < a.dist;
+		// }
+	};
+	
+	// sort zones acoording to the distance to the camera and assing them a "depth order"
+	std::vector<Pair> dist_vector;
+	int idx = 0;
+	for (auto omz : overlay_masks_zones) {
+		float max_dist = 0;		
+		for (auto zone : omz.overlay_zones) {
+
+
+			// compute distance point quad
+			float d = zone.distanceFrom(camera_pos);
+			
+			// Vec3f min_pos = Vec3f(zone.min(0), 0, zone.min(1));
+			// Vec3f max_pos = Vec3f(zone.max(0), 0, zone.max(1));
+			// float d = std::max((camera_pos - min_pos).norm(),
+			// 				   (camera_pos - max_pos).norm());
+			if (d > max_dist) {
+				max_dist = d;
+			}
+		}
+
+		dist_vector.push_back(Pair{max_dist, idx});
+		idx++;
+	}
+
+	// sort dist vector from min to max dist
+//	std::sort(dist_vector.begin(), dist_vector.end());
+//	std::reverse(dist_vector.begin(), dist_vector.end());
+ 
+	// assign depth indices to zones
+	int depth_index = 1; //zero is the default value
+	int ii = 0;
+	
+	for (auto pair : dist_vector) {
+		overlay_masks_zones[ii].depth_index = depth_index;
+		overlay_masks_zones[ii].dist = pair.dist;		
+		depth_index++;
+		ii++;
 	}
 }
 
-void CameraBackgroundLayer::createOverlay(const int16* base_data, int size) {
+Geometry::Polygon<Vec2i> CameraBackgroundLayer::createOverlay(const int16* base_data, int size) {
 
-	int min1, min2;
-	int max1, max2;
+	int min1 = 32767, min2 = 32767;
+	int max1 = -32768, max2 = -32768;
 	const int16* data = base_data;
 	Geometry::Polygon<Vec2i> overlay;
+
+
+	// compute scale of the overlay
+	// TODO: get from engine instance!? scale a posteriori!!
+	float scale_x = float(1280)/320;
+	float scale_y = float(720)/200;
+	
 	for(int i = 0; i < size; i++) {
 		
 		int tmp1 = data[0];
@@ -162,13 +238,13 @@ void CameraBackgroundLayer::createOverlay(const int16* base_data, int size) {
 		if (tmp2 > max2) {
 			max2 = tmp2;
 		}
-
-		overlay.points.push_back(Vec2i(tmp1, tmp2));
+		
+		overlay.points.push_back(Vec2i(tmp1 * scale_x, tmp2 * scale_y));
 		
 		data += 2;
 	}
 
-	overlays.push_back(overlay);
+	return overlay;
 	
 	// data = base_data;
 	// for(int i = 0; i < size; i++) {
@@ -275,6 +351,9 @@ void RoomCamera::load(const char *base_data) {//, int index) {
 
 		CameraBackgroundLayer::Ptr bglayer =
 			CameraBackgroundLayer::Ptr(new CameraBackgroundLayer(base_zone_data + zone->dummy2));
+
+		bglayer->sortZonesFromCamera(position);
+		
 		bglayer_vector.push_back(bglayer);
 		data += 0x0C;
 	}

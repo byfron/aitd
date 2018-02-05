@@ -11,7 +11,8 @@ Camera GraphicsEngine::m_camera;
 bool GraphicsEngine::m_debug = false;
 int GraphicsEngine::WIDTH = 320;
 int GraphicsEngine::HEIGHT = 200;
-
+bool GraphicsEngine::show_debug_shapes = true;
+	
 std::vector<Aabb> DebugManager::aabb_vec;
 std::vector<Cylinder> DebugManager::cyl_vec;
 std::vector<Sphere> DebugManager::sphere_vec;
@@ -106,12 +107,28 @@ void GraphicsEngine::start(int _argc, const char* const* _argv) {
 	bgfx::setPaletteColor(1, UINT32_C(0x303030ff) );
 
 	bgfx::setViewClear(RENDER_PASS_BACKGROUND
-					   , BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH);
-//	bgfx::setViewClear(RENDER_PASS_GEOMETRY);
-//					   , BGFX_CLEAR_COLOR);//| BGFX_CLEAR_DEPTH|BGFX_CLEAR_STENCIL);
-//					   , 0
-//					   , 1.0f
-//					   , 0);
+					   , BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH|BGFX_CLEAR_STENCIL
+					   , 0x30303000
+					   , 1.0f
+					   , 100);
+
+	bgfx::setViewClear(RENDER_PASS_PRE_BGMASK
+					   , BGFX_CLEAR_STENCIL|BGFX_CLEAR_DEPTH|BGFX_CLEAR_STENCIL
+					   , 0x30303000
+					   , 1.0f
+	 				   , 100);
+	
+	bgfx::setViewClear(RENDER_PASS_BGMASK //TODO: rename STENCIL
+					   , BGFX_CLEAR_STENCIL
+					   , 0x30303000
+					   , 1.0f
+	 				   , 100);
+	
+	bgfx::setViewClear(RENDER_PASS_GEOMETRY
+					   , BGFX_CLEAR_COLOR| BGFX_CLEAR_DEPTH|BGFX_CLEAR_STENCIL
+					   , 0x30303000
+					   , 1.0f
+					   , 100);
 	
 	initResources();
 
@@ -128,11 +145,40 @@ void GraphicsEngine::start(int _argc, const char* const* _argv) {
 void GraphicsEngine::initResources() {
 	PosColorVertex::init();
 	PosTexCoordVertex::init();
+
+	u_preMaskTex  = bgfx::createUniform("u_preMaskTex",  bgfx::UniformType::Int1);
+
 }
 
 void GraphicsEngine::run() {
 
 	const float deltaTime = getDeltaTime();
+
+	
+	// bgfx::setViewClear(RENDER_PASS_BACKGROUND
+	// 				   , BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH|BGFX_CLEAR_STENCIL
+	// 				   , 0x30303000
+	// 				   , 1.0f
+	// 				   , 1);
+
+	bgfx::setViewClear(RENDER_PASS_PRE_BGMASK //TODO: rename STENCIL
+					   , BGFX_CLEAR_STENCIL
+					   , 0x30303000
+					   , 1.0f
+					   , 0);
+	
+	bgfx::setViewClear(RENDER_PASS_BGMASK //TODO: rename STENCIL
+					   , BGFX_CLEAR_STENCIL
+					   , 0x30303000
+					   , 1.0f
+					   , 0);
+	
+	bgfx::setViewClear(RENDER_PASS_GEOMETRY
+					   , BGFX_CLEAR_DEPTH
+					   , 0x30303000
+					   , 1.0f
+					   , 0);
+
 
 //	DebugManager::push_polygon({Vec3f(0.f,0.f,0.f), Vec3f(1.f,1.f,1.f), Vec3f(0.f,2.f,1.f)});
 	
@@ -148,6 +194,12 @@ void GraphicsEngine::run() {
 			| BGFX_TEXTURE_MIP_POINT
 			| BGFX_TEXTURE_U_CLAMP
 			| BGFX_TEXTURE_V_CLAMP;
+
+
+		m_gbufferTex[0] = bgfx::createTexture2D(m_width, m_height, false, 1, bgfx::TextureFormat::BGRA8, samplerFlags);
+
+		m_preMaskBuffer = bgfx::createFrameBuffer(BX_COUNTOF(m_gbufferTex), m_gbufferTex, true);
+
 	}
 
 /////////////////////////// All this has to go away ////////////////////
@@ -158,17 +210,26 @@ void GraphicsEngine::run() {
 
 	bgfx::touch(0);
 	
-	// background render view
+	// background render view //////////////////////////////
 	bx::mtxOrtho(proj, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 100.0f, 0.0f, bgfx::getCaps()->homogeneousDepth);
 	bgfx::setViewRect(RENDER_PASS_BACKGROUND, 0, 0, m_width, m_height);
 	bgfx::setViewTransform(RENDER_PASS_BACKGROUND, NULL, proj);
 
-	// Stencil render view
+	// pre-mask : mesh masks view //////////////////////////
+	bgfx::setViewRect(RENDER_PASS_PRE_BGMASK, 0, 0, m_width, m_height);
+//	bx::mtxOrtho(proj, 0.0f, m_width, m_height, 0.0f, 0.0f, 1000000.0f, 0.0f, bgfx::getCaps()->homogeneousDepth);
+//	bgfx::setViewFrameBuffer(RENDER_PASS_PRE_BGMASK, m_preMaskBuffer);	
+		
+	// Stencil render view (frame buffer) /////////////////// 
 	bgfx::setViewRect(RENDER_PASS_BGMASK, 0, 0, m_width, m_height);
+	bx::mtxOrtho(proj, 0.0f, m_width, m_height, 0.0f, 0.0f, 1000000.0f, 0.0f, bgfx::getCaps()->homogeneousDepth);
 	bgfx::setViewTransform(RENDER_PASS_BGMASK, NULL, proj);
-	
+	// TODO: we may have to move this before we submit the stencil
+//	bgfx::setTexture(1, u_preMaskTex,  bgfx::getTexture(m_preMaskBuffer, 0) );
+
 	// Geometry render view
 	bgfx::setViewRect(RENDER_PASS_GEOMETRY, 0, 0, uint16_t(m_width), uint16_t(m_height));
+//	bgfx::setViewTransform(RENDER_PASS_GEOMETRY, NULL, proj);
 	
 	DebugManager::update(deltaTime);
 	frame(deltaTime);

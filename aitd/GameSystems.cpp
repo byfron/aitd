@@ -6,11 +6,11 @@ namespace aitd {
 using namespace Components;
 
 void ScriptingSystem::update(EntityManager & em, EventManager &evm, float delta) {
-	// em.each<ScriptComponent>(
-	// 	[delta, this, em](Entity entity,
-	// 			ScriptComponent& sc) {
-	// 		scripting_manager->runScript(sc.script_id, entity.id(), em);
-	// 	});
+	em.each<ScriptComponent>(
+		[delta, this, em](Entity entity,
+				ScriptComponent& sc) {
+			scripting_manager->runScript(sc.script_id, entity.id(), em);
+		});
 }
 
 void InputSystem::update(EntityManager & em, EventManager &evm, float delta) {
@@ -46,6 +46,34 @@ void InputSystem::update(EntityManager & em, EventManager &evm, float delta) {
 				InputManager::setKeyState(ACTOR_KEY_DOWN, false);
 			}	
 		});
+}
+
+
+void TriggerSystem::update(EntityManager & em, EventManager &evm, float delta ) {
+
+	auto tc_ptr = em.getComponentPtr<TransformComponent>(AITDEngine::player_entity_id);
+
+	em.each<TriggerComponent>([&tc_ptr](Entity entity,
+		 TriggerComponent& trc) {
+				  if (trc.isTriggering(tc_ptr->translation)) {
+
+					  switch(trc.type) {
+
+					  case 0: // room change
+						  break;
+
+					  case 9: // play sound
+						  break;
+
+					  case 10: // life!!
+						  //process script(field_24) of the object! (wtf is that?)
+						  // entity.id
+						  
+						  break;
+					  };
+				  }
+		  });
+	
 }
 
 void CollisionSystem::update(EntityManager & em, EventManager &evm, float delta ) {
@@ -97,10 +125,7 @@ void CollisionSystem::update(EntityManager & em, EventManager &evm, float delta 
 					continue;
 				
 				if (ac.second.checkCollision(&this_col)) {
-					std::cout << "colliding with " << ac.first.id << "!!" << std::endl;
-
 					auto actor_poly = ac.second.bounding_box.getBasePolygon();
-
 					Vec2f MTD;
 					CollisionUtils::IntersectMTD(entity_poly, actor_poly, MTD);
 					mc.translation -= Vec3f(MTD(0), 0, MTD(1));
@@ -139,20 +164,21 @@ void UpdateSystem::update(EntityManager & em, EventManager &evm, float delta ) {
 		[delta, &em, this](Entity entity,
 					 CameraZoneComponent& czc) {
 			assert(em.valid(AITDEngine::player_entity_id));
+
+
 			auto tc_ptr = em.getComponentPtr<TransformComponent>(AITDEngine::player_entity_id);
+									
 			
-			//check if it's inside any of this zones
+			//check if it's inside any of this zones			
 			for (auto zone : czc.zones) {			
+
 				Eigen::Vector2i location(tc_ptr->getPosition()(0), tc_ptr->getPosition()(2));
 				if (zone.isWithin(location.cast<float>())) {
+	
 					//change camera if different than current
 					if (world->getCurrentCameraId() != entity.id()) {
-
 						//changing camera
-						std::cout << "changing camera to " << entity.id().id << std::endl;
-
-						world->switchToCamera(entity.id());
-						
+						world->switchToCamera(entity.id());			
 					}
 					
 
@@ -164,6 +190,13 @@ void UpdateSystem::update(EntityManager & em, EventManager &evm, float delta ) {
 				}
 				
 			}
-		});									  
+		});
+
+
+	// check if we are in a zone
+	
+
+	// update masks of meshes
+	
 }
 }

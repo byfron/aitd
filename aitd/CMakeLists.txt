@@ -1,6 +1,5 @@
 SET(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../)
 
-
 add_definitions(-DENTRY_CONFIG_IMPLEMENT_MAIN)
 
 find_package(Eigen3 REQUIRED)
@@ -91,7 +90,6 @@ target_link_libraries(AITDCore
 target_include_directories(AITDCore PUBLIC
   ${SDL_INCLUDE_DIR})
 
-
 add_executable(aitd aitd.cpp)
 
 target_link_libraries(aitd
@@ -112,7 +110,7 @@ target_include_directories(aitd PUBLIC
 
 add_executable(viewer_aitd viewer_aitd.cpp)
 target_link_libraries(viewer_aitd
-  fitd  
+  fitd
   AITDCore
   AITDViewerCore
   GraphicsCore
@@ -123,7 +121,6 @@ target_link_libraries(viewer_aitd
   GL
   X11
   dl)
-
 
 add_dependencies(aitd shaders)
 

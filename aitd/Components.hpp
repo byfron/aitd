@@ -1,10 +1,30 @@
 #pragma once
 
 #include "Actor.hpp" // remove this
+#include <graphics/Mesh.hpp>
+#include "RoomCamera.hpp"
+#include <iostream>
 
 namespace aitd {
 namespace Components {
 
+class TriggerComponent {
+public:
+	TriggerComponent(const Geometry::BBox& bb, const int16 t, const int16 param) :
+		bounding_box(bb),
+		type(t),
+		parameter(param) {}
+	
+	bool isTriggering(const Eigen::Vector3f& pos) {
+		auto poly = bounding_box.getBasePolygon();
+		return poly.isWithin(Vec2f(pos(0), pos(2)));
+	}
+	
+	Geometry::BBox bounding_box;
+	int16 parameter; 
+	int16 type; //0: room change
+};
+	
 class SceneCollisionComponent {
 public:
 
@@ -66,7 +86,8 @@ public:
 class MetaDataComponent {
 public:
 
-	MetaDataComponent(int16 f, int16 body, int16 l, int16 lm, int16 tm) :
+	MetaDataComponent(int16 index, int16 f, int16 body, int16 l, int16 lm, int16 tm) :
+		object_id(index),
 		flags(f),
 		body_num(body),
 		life(l),
@@ -75,8 +96,7 @@ public:
 			
 	}
 
-//	int16 object_id; // corresponding object/body in the table of bodies pre-loaded
-	
+	int16 object_id; // corresponding object/body in the table of bodies pre-loaded
 	int16 flags; //
 	int16 body_num;
 	int16 life;
@@ -138,14 +158,38 @@ public:
 
 };
 
-// Encodes masking/stencil of background image areas	
+// Encodes masking/stencil of background image areas
+// TODO: move this to /graphics	
 class CameraBgZoneComponent {
 public:
-	CameraBgZoneComponent(const Geometry::Polygon< Vec2i >& z,
-						  const std::vector<Geometry::Polygon<Vec2i> >& ml) :
-		zone(z), mask_list(ml) {}
-	Geometry::Polygon<Vec2i> zone;
-	std::vector<Geometry::Polygon<Vec2i> > mask_list;
+	CameraBgZoneComponent(const std::vector<CameraBackgroundLayer::OverlayMaskZone>& omz) :
+		overlay_masks_zones(omz) {
+
+		std::reverse(overlay_masks_zones.begin(), overlay_masks_zones.end());
+		
+		for (auto omz : overlay_masks_zones)
+		{
+			std::vector<BgMask::IndexPolygon> overlay_list;
+			for (auto overlay : omz.overlays) {
+			 	overlay_list.push_back(BgMask::IndexPolygon(omz.depth_index, overlay));
+			}
+			BgMask::Ptr mask = std::make_shared<BgMask>(overlay_list);
+			mask->craftStencilBuffer(overlay_list);
+			mask_vector.push_back(mask);
+		}
+	}
+
+	void resetStencilIndices() {
+		for (auto mask : mask_vector) {
+			mask->setStencilIndex(0);
+		}
+	}
+	
+	std::vector<CameraBackgroundLayer::OverlayMaskZone> overlay_masks_zones; //TODO: dont need to store this
+
+	// craft a mask per each mask zone!	
+	std::vector<BgMask::Ptr> mask_vector;
+	
 };
 
 class CameraZoneComponent {
