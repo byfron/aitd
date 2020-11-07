@@ -34,7 +34,9 @@ void Camera::init() {
 void Camera::mtxLookAt(float* _outViewMtx)
 {
 	//bx::mtxLookAt(_outViewMtx, m_pos.curr, m_target.curr);
-	bx::mtxLookAt(_outViewMtx, m_eye.data(), m_at.data(), m_cam_up.data());
+	//bx::mtxLookAt(_outViewMtx, m_eye.data(), m_at.data(), m_cam_up.data());
+	bx::mtxLookAt(_outViewMtx, bx::Vec3(m_eye(0), m_eye(1), m_eye(2)), bx::Vec3(m_at(0), m_at(1), m_at(2)),  bx::Vec3(m_cam_up(0), m_cam_up(1), m_cam_up(2)));
+
 }
 
 void Camera::orbit(float _dx, float _dy)
@@ -48,19 +50,19 @@ void Camera::dolly(float _dz)
 	const float cnear = 0.01f;
 	const float cfar  = 10.0f;
 
-	const float toTarget[3] =
+	const bx::Vec3 toTarget =
 		{
 			m_target.dest[0] - m_pos.dest[0],
 			m_target.dest[1] - m_pos.dest[1],
 			m_target.dest[2] - m_pos.dest[2],
 		};
-	const float toTargetLen = bx::vec3Length(toTarget);
+	const float toTargetLen = bx::length(toTarget);
 	const float invToTargetLen = 1.0f/(toTargetLen+FLT_MIN);
 	const float toTargetNorm[3] =
 		{
-			toTarget[0]*invToTargetLen,
-			toTarget[1]*invToTargetLen,
-			toTarget[2]*invToTargetLen,
+			toTarget.x*invToTargetLen,
+			toTarget.y*invToTargetLen,
+			toTarget.z*invToTargetLen,
 		};
 
 	float delta = toTargetLen*_dz;
@@ -137,19 +139,19 @@ void Camera::consumeOrbit(float _amount)
 	m_orbit[0] -= consume[0];
 	m_orbit[1] -= consume[1];
 
-	const float toPos[3] =
+	const bx::Vec3 toPos =
 		{
 			m_pos.curr[0] - m_target.curr[0],
 			m_pos.curr[1] - m_target.curr[1],
 			m_pos.curr[2] - m_target.curr[2],
 		};
-	const float toPosLen = bx::vec3Length(toPos);
+	const float toPosLen = bx::length(toPos);
 	const float invToPosLen = 1.0f/(toPosLen+FLT_MIN);
 	const float toPosNorm[3] =
 		{
-			toPos[0]*invToPosLen,
-			toPos[1]*invToPosLen,
-			toPos[2]*invToPosLen,
+			toPos.x*invToPosLen,
+			toPos.y*invToPosLen,
+			toPos.z*invToPosLen,
 		};
 
 	float ll[2];
@@ -264,10 +266,10 @@ void Camera::vecFromLatLong(float _vec[3], float _u, float _v)
 	const float phi   = _u * 2.0f*bx::kPi;
 	const float theta = _v * bx::kPi;
 
-	const float st = bx::fsin(theta);
-	const float sp = bx::fsin(phi);
-	const float ct = bx::fcos(theta);
-	const float cp = bx::fcos(phi);
+	const float st = bx::sin(theta);
+	const float sp = bx::sin(phi);
+	const float ct = bx::cos(theta);
+	const float cp = bx::cos(phi);
 
 	_vec[0] = -st*sp;
 	_vec[1] = ct;

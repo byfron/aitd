@@ -39,7 +39,7 @@ bgfx::ShaderHandle pumpkinLoadShader(bx::FileReaderI* _reader, const char* _name
 	case bgfx::RendererType::Vulkan:     shaderPath += "spirv/"; break;
 
 	case bgfx::RendererType::Count:
-		BX_CHECK(false, "You should not be here!");
+		BX_TRACE(false, "You should not be here!");
 		break;
 	}
 

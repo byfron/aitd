@@ -18,9 +18,10 @@ std::vector<Cylinder> DebugManager::cyl_vec;
 std::vector<Sphere> DebugManager::sphere_vec;
 std::vector<std::vector<Vec3f>> DebugManager::poly_vec;
 std::vector<DebugManager::Line> DebugManager::line_vec;
+DebugDrawEncoder DebugManager::dde;
 
-bgfx::VertexDecl PosColorVertex::ms_decl;
-bgfx::VertexDecl PosTexCoordVertex::ms_decl;
+bgfx::VertexLayout PosColorVertex::ms_decl;
+bgfx::VertexLayout PosTexCoordVertex::ms_decl;
 
 //TODO: put in utils
 void screenSpaceQuad(float _textureWidth, float _textureHeight, bool _originBottomLeft = false, float _width = 1.0f, float _height = 1.0f)
@@ -92,7 +93,14 @@ float getDeltaTime() {
 
 void GraphicsEngine::start(int _argc, const char* const* _argv) {
 	Args args(_argc, _argv);
-	bgfx::init(args.m_type, args.m_pciId);
+
+
+	bgfx::Init init;
+	init.type     = args.m_type;
+	init.vendorId = args.m_pciId;
+	init.resolution.width  = 800;
+	init.resolution.height = 600;
+	bgfx::init(init);
 
 	m_width = WIDTH;
 	m_height = HEIGHT;
@@ -134,8 +142,8 @@ void GraphicsEngine::start(int _argc, const char* const* _argv) {
 
 	init_engine();
 	ddInit();
-	ddSetColor(0xff00ff00);
-	ddSetWireframe(true);
+	//ddSetColor(0xff00ff00);
+	//ddSetWireframe(true);
 
 	m_camera.init();
 	m_input_manager.init();
@@ -146,7 +154,7 @@ void GraphicsEngine::initResources() {
 	PosColorVertex::init();
 	PosTexCoordVertex::init();
 
-	u_preMaskTex  = bgfx::createUniform("u_preMaskTex",  bgfx::UniformType::Int1);
+	u_preMaskTex  = bgfx::createUniform("u_preMaskTex",  bgfx::UniformType::Sampler);
 
 }
 
@@ -189,11 +197,11 @@ void GraphicsEngine::run() {
 
 		const uint32_t samplerFlags = 0
 			| BGFX_TEXTURE_RT
-			| BGFX_TEXTURE_MIN_POINT
-			| BGFX_TEXTURE_MAG_POINT
-			| BGFX_TEXTURE_MIP_POINT
-			| BGFX_TEXTURE_U_CLAMP
-			| BGFX_TEXTURE_V_CLAMP;
+			| BGFX_SAMPLER_MIN_POINT
+			| BGFX_SAMPLER_MAG_POINT
+			| BGFX_SAMPLER_MIP_POINT
+			| BGFX_SAMPLER_U_CLAMP
+			| BGFX_SAMPLER_V_CLAMP;
 
 
 		m_gbufferTex[0] = bgfx::createTexture2D(m_width, m_height, false, 1, bgfx::TextureFormat::BGRA8, samplerFlags);

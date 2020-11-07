@@ -131,9 +131,9 @@ void MeshComponent::generateMesh() {
 			Shader::Ptr(new Shader("vs_default", "fs_default")),
 			// render state
 			0
-			| BGFX_STATE_RGB_WRITE
-			| BGFX_STATE_ALPHA_WRITE
-			| BGFX_STATE_DEPTH_WRITE
+			| BGFX_STATE_WRITE_RGB
+			| BGFX_STATE_WRITE_A
+			| BGFX_STATE_WRITE_Z
 			| BGFX_STATE_DEPTH_TEST_LESS
 			| BGFX_STATE_MSAA,
 			// fstencil
@@ -202,7 +202,7 @@ void MeshComponent::updateVertices() {
    
 	const bgfx::Memory* mem;
 	mem = bgfx::copy(&vertex_buffer[0], sizeof(PosColorVertex) * vertex_buffer.size() );
-	bgfx::updateDynamicVertexBuffer(mesh->m_dvbh, 0, mem);
+	bgfx::update(mesh->m_dvbh, 0, mem);
 	///////////// 
 }
 
@@ -358,7 +358,7 @@ void RenderSystem::update(EntityManager & em, EventManager &evm, float delta) {
 
 		// Render actor position
 		auto tc_ptr = em.getComponentPtr<TransformComponent>(AITDEngine::player_entity_id);
-		DebugManager::push_sphere(Sphere{tc_ptr->getPosition()(0), tc_ptr->getPosition()(1), tc_ptr->getPosition()(2), 40.0});
+		DebugManager::push_sphere(Sphere{bx::Vec3{tc_ptr->getPosition()(0), tc_ptr->getPosition()(1), tc_ptr->getPosition()(2)}, 40.0});
 
 		//1014: stool
 		//1011: window
@@ -366,7 +366,7 @@ void RenderSystem::update(EntityManager & em, EventManager &evm, float delta) {
 		//1016: lamp
 		//1006: box
 		tc_ptr = em.getComponentPtr<TransformComponent>(Entity::Id(1006));
-		DebugManager::push_sphere(Sphere{tc_ptr->getPosition()(0), tc_ptr->getPosition()(1), tc_ptr->getPosition()(2), 440.0});
+		DebugManager::push_sphere(Sphere{bx::Vec3{tc_ptr->getPosition()(0), tc_ptr->getPosition()(1), tc_ptr->getPosition()(2)}, 440.0});
 
 	// Render Camera Zones
 	// em.each<CameraZoneComponent>(

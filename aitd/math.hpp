@@ -14,4 +14,4 @@ typedef Eigen::Matrix<int, 2, 1> Vec2i;
 #define TO_2DVEC(x) Vec2f(x(0), x(1))
 #define TO_3DVEC(x) Vec3f(x(0), x(1), 0.0)
 
-#define FROM_V3(cv, ev) cv[0] = ev(0); cv[1] = ev(1); cv[2] = ev(2);
+#define FROM_V3(cv, ev) cv.x = ev(0); cv.y = ev(1); cv.z = ev(2);

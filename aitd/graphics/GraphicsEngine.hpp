@@ -34,7 +34,7 @@ struct PosTexCoordVertex
 			.end();
 	};
 
-	static bgfx::VertexDecl ms_decl;
+	static bgfx::VertexLayout ms_decl;
 };
 
 struct PosColorVertex
@@ -53,7 +53,7 @@ struct PosColorVertex
 			.end();
 	};
 
-	static bgfx::VertexDecl ms_decl;
+	static bgfx::VertexLayout ms_decl;
 };
 
 // Views

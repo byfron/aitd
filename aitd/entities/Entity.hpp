@@ -493,7 +493,7 @@ public:
 template <typename C>
 void Entity::has_component() {
 	assert(valid());
-	return _em->has_component<C>();
+	return _em->component<C>();
 }
 
 template <typename C, typename ... Args>
@@ -513,13 +513,13 @@ ComponentHandle<C> Entity::component() {
 	assert(valid());
 	return _em->component<C>(_id);
 }
-
+/*
 template <typename ... Components>
 std::tuple<ComponentHandle<Components>...> Entity::components() {
 	assert(valid());
 	return _em->components<Components...>();
 }
-
+*/
 
 template <typename C, typename ... Args>
 ComponentHandle<C> EntityManager::assign(Entity::Id id, Args && ... args) {

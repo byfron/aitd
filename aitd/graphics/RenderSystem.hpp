@@ -75,10 +75,10 @@ public:
 		const bgfx::Memory* mem = bgfx::alloc(num_pixels*3);
 		memcpy((unsigned char*)mem->data, buffer, num_pixels*3);
 		const uint32_t flags = 0
-	 	| BGFX_TEXTURE_U_CLAMP
-	 	| BGFX_TEXTURE_V_CLAMP
-	 	| BGFX_TEXTURE_MIN_POINT
-	 	| BGFX_TEXTURE_MAG_POINT;
+	 	| BGFX_SAMPLER_U_CLAMP
+	 	| BGFX_SAMPLER_V_CLAMP
+	 	| BGFX_SAMPLER_MIN_POINT
+	 	| BGFX_SAMPLER_MAG_POINT;
 		texture = bgfx::createTexture2D(GraphicsEngine::WIDTH, GraphicsEngine::HEIGHT, false, 1,
 										bgfx::TextureFormat::RGB8, flags, mem);	
 		program = Shader::Ptr(new Shader("vs_backg", "fs_backg"));
@@ -88,7 +88,7 @@ public:
 	void render(float delta) {
 		bgfx::setTexture(0, texture_uniform, texture);
 		bgfx::setState(0
-					   | BGFX_STATE_RGB_WRITE
+					   | BGFX_STATE_WRITE_RGB
 //					   | BGFX_STATE_DEPTH_WRITE
 //					   | BGFX_STATE_DEPTH_TEST_LESS
 //					   | BGFX_STATE_CULL_CW

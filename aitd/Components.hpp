@@ -102,6 +102,12 @@ public:
 	int16 life;
 	int16 life_mode;
 	int16 track_mode;
+
+
+
+	//added to make it compile. review
+	int16 anim;
+	int16 field44;
 	
 };	
 	

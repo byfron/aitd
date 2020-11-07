@@ -268,10 +268,10 @@ class DebugSphere : public DebugMesh {
 public:
 	DebugSphere(const Vec3f& c, float r) {
 
-		sphere.m_center[0] = c(0);
-		sphere.m_center[1] = c(1);
-		sphere.m_center[2] = c(2);
-		sphere.m_radius = r;
+		sphere.center.x = c(0);
+		sphere.center.y = c(1);
+		sphere.center.z = c(2);
+		sphere.radius = r;
 	}
 	
 	void render(float dt) override {
